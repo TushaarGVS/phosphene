@@ -2,8 +2,8 @@ import numpy
 import random
 import time
 
-from cubelib import mywireframe
-from cubelib import emulator
+from cubelib import rgbwireframe
+from cubelib import rgbemulator
 
 # TODO:
 # shiftPlane(axis, plane, delta)
@@ -21,64 +21,65 @@ from cubelib import emulator
 #   advance its steps, and then increment / decrement that
 #   counter according to music
 
-def wireframeCubeCenter(cube,size):
+off = [0,0,0]
+
+def wireframeCubeCenter(cube,size,colours):
     if size % 2 == 1:
             size = size+1
 
     half = size/2
     start = cube.dimension/2 - half
     end = cube.dimension/2 + half - 1
-
     for x in range(0,cube.dimension):
         for y in range(0,cube.dimension):
             for z in range(0,cube.dimension):
-                cube.set_led(x,y,z,0)
+                cube.set_led(x,y,z,off)
 
     for x in (start,end):
         for y in (start,end):
             for z in range(start,end+1):
-                cube.set_led(x,y,z)
-                cube.set_led(x,z,y)
-                cube.set_led(z,x,y)
+                cube.set_led(x,y,z,colours)
+                cube.set_led(x,z,y,colours)
+                cube.set_led(z,x,y,colours)
 
-def wireframeCube(cube,START,END):
+def wireframeCube(cube,START,END,colours):
     x0,y0,z0 = START
     x1,y1,z1 = END
     print "start:",START,"end:",END
     for x in range(0,cube.dimension):
         for y in range(0,cube.dimension):
                 for z in range(0,cube.dimension):
-                        cube.set_led(x,y,z,0)
+                        cube.set_led(x,y,z,off)
     for x in (x0,x1):
         for y in (y0,y1):
             if z0<z1:
                 for z in range(z0,z1+1):
-                    cube.set_led(x,y,z)
+                    cube.set_led(x,y,z,colours)
 		    print x,y,z, "set-1st condition"
             else:
                 for z in range(z1,z0+1):
-                    cube.set_led(x,y,z)
+                    cube.set_led(x,y,z,colours)
 		    print x,y,z, "set-2nd condition"
     for x in (x0,x1):
         for z in (z0,z1):
             if y0<y1:
                 for y in range(y0,y1+1):
-                    cube.set_led(x,y,z)
+                    cube.set_led(x,y,z,colours)
 		    print x,y,z, "Set - 1st"
             else:
                 for y in range(y1,y0+1):
-                    cube.set_led(x,y,z)
+                    cube.set_led(x,y,z,colours)
 		    print x,y,z, "Set - 2nd"
 
     for y in (y0,y1):
         for z in (z0,z1):
             if x0<x1:
                 for x in range(x0,x1+1):
-                    cube.set_led(x,y,z)
+                    cube.set_led(x,y,z,colours)
 		    print x,y,z, "SET - 1st"
             else:
                 for x in range(x1,x0+1):
-                    cube.set_led(x,y,z)
+                    cube.set_led(x,y,z,colours)
                     print x,y,z, "SET - 2nd"
 
 def solidCubeCenter(cube,size):
@@ -92,12 +93,12 @@ def solidCubeCenter(cube,size):
     for x in range(0,cube.dimension):
         for y in range(0,cube.dimension):
             for z in range(0,cube.dimension):
-                cube.set_led(x,y,z,0)
+                cube.set_led(x,y,z,off)
 
     for i in range(start,end):
         for j in range(start,end):
             for k in range(start,end):
-                cube.set_led(i,j,k)
+                cube.set_led(i,j,k,colours)
 
 def solidCube(cube,START,END):
     x0,y0,z0 = START
@@ -106,12 +107,12 @@ def solidCube(cube,START,END):
     for x in range(0,cube.dimension):
         for y in range(0,cube.dimension):
             for z in range(0,cube.dimension):
-                cube.set_led(x,y,z,0)
+                cube.set_led(x,y,z,off)
 
     for i in range(x0,x1+1):
         for j in range(y0,y1+1):
             for k in range(z0,z1+1):
-                cube.set_led(i,j,k)
+                cube.set_led(i,j,k,colours)
 
 def setPlane(cube,axis,x,level = 1):
     plane = level
@@ -284,7 +285,7 @@ def wierdshape(cube,diagonal,translate=(0,0)):
 						array[x][y] = 1		
     return array
 
-def fillCube(cube,level=1):
+def fillCube(cube,level=[1,1,1]):
     for x in range(0,cube.dimension):
 	    for y in range(0,cube.dimension):
 	        for z in range(0,cube.dimension):
@@ -956,6 +957,8 @@ def technites(cube,counter,axis = 3):
             setPlane(cube,axis,9,S(cube))
         else:
 	    stringfly(cube,axis)
+
+#incomplete.
 def moveFaces(cube):
 	Z0 = numpy.array([[0]*cube.dimension]*cube.dimension)
 	Z9 = numpy.array([[0]*cube.dimension]*cube.dimension)
@@ -991,4 +994,17 @@ def moveFaces(cube):
 	setPlane(cube,1,0,Z0)
 	setPlane(cube,3,9,X9)
 	setPlane(cube,1,9,Z9)
+
+def randomness(cube,counter):
+    size = counter%5
+    colour = counter%3
+    for x in range(0,size):
+        for y in range(0,size):
+            for z in range(0,size):
+                if colour == 0:
+                    cube.set_led(x,y,z,[1,0,0])
+                elif colour == 1:
+                    cube.set_led(x,y,z,[0,1,0])
+                else:
+                    cube.set_led(x,y,z,[0,0,1])
 
