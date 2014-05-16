@@ -12,6 +12,7 @@ from cubelib import rgbemulator
 # rain should set random LEDs on the first plane (not a lot of them)
 #   and shift the plane along that axis by one step---Fixed
 #   and shift the plane along that axis by one step
+# Convert all animations to RGB.   
 #
 # THINK:
 #   The python code keeps sending a 125 byte string to redraw the
@@ -21,7 +22,7 @@ from cubelib import rgbemulator
 #   advance its steps, and then increment / decrement that
 #   counter according to music
 
-off = [0,0,0]
+off = [0,0,0] #Value to be passed to turn off a set of leds.
 
 def wireframeCubeCenter(cube,size,colours):
     if size % 2 == 1:
@@ -1008,3 +1009,8 @@ def randomness(cube,counter):
                 else:
                     cube.set_led(x,y,z,[0,0,1])
 
+def colourCube(cube):
+    r = random.choice([0,1]) 
+    g = random.choice([0,1])
+    b = random.choice([0,1])
+    fillCube(cube,[r,g,b])

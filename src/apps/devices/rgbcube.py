@@ -99,7 +99,7 @@ if __name__ == "__main__":
         #planeBounce(cube,1,count)
         #start = wireframeExpandContract(cube,start)
         #rain(cube,count,5,10)
-	randomness(cube,count)
+	#randomness(cube,count)
         #time.sleep(.1)
         #point = voxel(cube,count,point)
 	#sine_wave(cube,count)
@@ -114,6 +114,7 @@ if __name__ == "__main__":
         #cube.set_led(0,0,0)
         #cube.set_led(0,0,1)
         #fillCube(cube,[0,1,0])
-        cube.redraw(wf,pv)
+        colourCube(cube)
+	cube.redraw(wf,pv)
         count += 1
-        time.sleep(1)
+        time.sleep(.1)
