@@ -12,7 +12,9 @@ import threading
 # TODO : 
 # Add RGB value dimension to the layer - DONE.
 # Convert the ByteStream function to send proper data- DONE. 
-# Sending 8 bytes(entire cube)of red first followed by green and then blue.
+# Proper animations.
+ 
+#Sending 8 bytes(entire cube)of red first followed by green and then blue.
 
 class Cube(Device):
     def __init__(self, port, dimension=4, emulator=False):
@@ -36,13 +38,14 @@ class Cube(Device):
         # 16 bits per layer, 0 bits waste. 
 	# Note : Bytes to be read in reverse order.
  
-        bytesPerLayer = int(math.ceil((self.dimension**2) / 8.0))
+        bytesPerLayer = int(math.ceil((self.dimension**2) / 8.0)) #4**2/8 = 2
         print bytesPerLayer
-        discardBits = bytesPerLayer * 8 - self.dimension**2
+        discardBits = bytesPerLayer * 8 - self.dimension**2 # 2*8 - 4**2 = 0
         print discardBits
 	bts = []
         for i in range(0,3):
-	    bts.append(bytearray(bytesPerLayer*self.dimension))
+            #3 bytearrays - bts[0] - red stream, bts[1] green stream, bts[2] - blue
+	    bts.append(bytearray(bytesPerLayer*self.dimension)) #2*4 3times
 
         pos = 0
         mod = 0
@@ -89,30 +92,11 @@ if __name__ == "__main__":
                     print "wrote", bs[i][j]
             assert(cube.port.read() == '.')
 
-    #t = threading.Thread(target=sendingThread)
-    #t.start()
+    t = threading.Thread(target=sendingThread)
+    t.start()
     
     while True:
-        #wireframeCube(cube,(1,1,1),(9,9,9))
-        #fillCube(cube, 1)
-        #planeBounce(cube,(count/20)%2+1,count%20)
-        #planeBounce(cube,1,count)
-        #start = wireframeExpandContract(cube,start)
-        #rain(cube,count,5,10)
 	#randomness(cube,count)
-        #time.sleep(.1)
-        #point = voxel(cube,count,point)
-	#sine_wave(cube,count)
-	#pyramids(cube,count)
-	#side_waves(cube,count)
-	#fireworks(cube,4)
-        #technites(cube, count)
-        #setPlane(cube,1,(counter/100)%10,1)
-        #setPlane(cube,2,0,1)
-	#stringPrint(cube,'TECHNITES',count)
-        #moveFaces(cube)
-        #cube.set_led(0,0,0)
-        #cube.set_led(0,0,1)
         #fillCube(cube,[0,1,0])
         colourCube(cube)
 	cube.redraw(wf,pv)

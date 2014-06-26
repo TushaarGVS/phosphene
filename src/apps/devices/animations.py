@@ -189,7 +189,7 @@ def wireframeExpandContract(cube,start=(0,0,0)):
             else:
                 wireframeCube(cube,(x0,y0,z0),(x0-i,y0-i,z0-i))
         time.sleep(0.1)
-	cube.redraw()    
+	#cube.redraw(wf,pv)    
 
     max_coord = cube.dimension - 1
     corners = [0,max_coord]
@@ -216,7 +216,7 @@ def wireframeExpandContract(cube,start=(0,0,0)):
                 wireframeCube(cube,(x0,y0,z0),(x0-i,y0-i,z0+i))
             else:
                 wireframeCube(cube,(x0,y0,z0),(x0-i,y0-i,z0-i))                 
-        cube.redraw()
+        #cube.redraw()
 	time.sleep(0.1)
     return (x0, y0, z0) # return the final coordinate
 
@@ -992,3 +992,15 @@ def moveFaces(cube):
 	setPlane(cube,3,9,X9)
 	setPlane(cube,1,9,Z9)
 
+def drawFunc(cube,f,count):
+	fillCube(cube,0)
+	i = count%10
+	for j in range(0,cube.dimension):
+		k = int(f(i,j))%cube.dimension
+		cube.set_led(i,j,k,1)
+	"""
+	for i in range(0,cube.dimension):
+	  for j in range(0,cube.dimension):
+		  k = int(f(i,j))%cube.dimension
+		  cube.set_led(i,j,k,1)
+	"""

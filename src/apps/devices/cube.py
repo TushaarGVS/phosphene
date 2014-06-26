@@ -9,6 +9,8 @@ import time
 import threading
 
 # A class for the cube
+#TODO:Fix up animations to add the new pv variable.
+
 class Cube(Device):
     def __init__(self, port, dimension=10, emulator=False):
         Device.__init__(self, "Cube", port)
@@ -66,7 +68,7 @@ if __name__ == "__main__":
     count = 0
     start = (0, 0, 0)
     point = (0,0)
-    #fillCube(cube,0)
+    fillCube(cube,0)
     #cube.redraw()
     #time.sleep(100)
     def sendingThread():
@@ -79,15 +81,16 @@ if __name__ == "__main__":
                 print "wrote", bs[i]
             assert(cube.port.read() == '.')
 
-    #t = threading.Thread(target=sendingThread)
-    #t.start()
+    t = threading.Thread(target=sendingThread)
+    t.start()
     while True:
         #wireframeCube(cube,(1,1,1),(9,9,9))
         #fillCube(cube, 1)
         #planeBounce(cube,(count/20)%2+1,count%20)
         #planeBounce(cube,1,count)
         #start = wireframeExpandContract(cube,start)
-        rain(cube,count,5,10)
+        #rain(cube,count,5,10)
+	#drawFunc(cube,lambda x,y:x**2+y**2,count)
 	time.sleep(.1)
         #point = voxel(cube,count,point)
 	#sine_wave(cube,count)
@@ -97,7 +100,7 @@ if __name__ == "__main__":
         #technites(cube, count)
         #setPlane(cube,1,(counter/100)%10,1)
         #setPlane(cube,2,0,1)
-	#stringPrint(cube,'TECHNITES',count)
+	stringPrint(cube,'TECHNITES',count)
         #moveFaces(cube)
         #cube.set_led(0,0,0)
         #cube.set_led(0,0,1)
