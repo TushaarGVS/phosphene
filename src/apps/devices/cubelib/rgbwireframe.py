@@ -25,7 +25,6 @@ class Wireframe:
 		node.visiblity = False
 	for key in visibleNodes:
                 index,levels = key
-                print index,levels
 	        self.nodes[index].visiblity = True
                 self.nodes[index].colour = (255*levels[0],255*levels[1],255*levels[2])
 

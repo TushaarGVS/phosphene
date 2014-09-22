@@ -14,7 +14,7 @@ import threading
 # Convert the ByteStream function to send proper data- DONE. 
 # Proper animations.
  
-#Sending 8 bytes(entire cube)of red first followed by green and then blue.
+#Sending each layer of red first followed by green and then blue. 1 frame -25bytes.
 
 class Cube(Device):
     def __init__(self, port, dimension=4, emulator=False):
@@ -36,20 +36,16 @@ class Cube(Device):
 
     def toByteStream(self):
         # 16 bits per layer, 0 bits waste. 
-	# Note : Bytes to be read in reverse order.
+        # Note : Bytes to be read in reverse order.
  
         bytesPerLayer = int(math.ceil((self.dimension**2) / 8.0)) #4**2/8 = 2
-        print bytesPerLayer
         discardBits = bytesPerLayer * 8 - self.dimension**2 # 2*8 - 4**2 = 0
-        print discardBits
-	bts = []
+        bts = []
         for i in range(0,3):
             #3 bytearrays - bts[0] - red stream, bts[1] green stream, bts[2] - blue
-	    bts.append(bytearray(bytesPerLayer*self.dimension)) #2*4 3times
-
+            bts.append(bytearray(bytesPerLayer*self.dimension)) #2*4 3times
         pos = 0
         mod = 0
-
         for layer in self.array:
             mod = discardBits
             for row in layer:
@@ -57,9 +53,7 @@ class Cube(Device):
                     for i in range(0,3):
                         if bit[i]: bts[i][pos] |= 1 << mod
                         else: bts[i][pos] &= ~(1 << mod)
-
                     mod += 1
-
                     if mod == 8:
                         mod = 0
                         pos += 1
@@ -71,34 +65,46 @@ class Cube(Device):
             pv.run()
 
 if __name__ == "__main__":
-    cube = Cube("/dev/ttyACM0",4,True)
+    cube = Cube("/dev/ttyACM5",4,True)
     pv = emulator.ProjectionViewer(640,480)
     wf = wireframe.Wireframe()
     pv.createCube(wf)
     count = 0
     start = (0, 0, 0)
     point = (0,0)
-    #bs = cube.toByteStream();
-    #fillCube(cube,0)
-    #cube.redraw()
     def sendingThread():
         while True:
-            cube.port.write("S")
             bs = cube.toByteStream()
-            for i in range(0, 3):
-                time.sleep(0.01)
-                for j in range(0,8):
-                    cube.port.write(chr(bs[i][j]))
-                    print "wrote", bs[i][j]
-            assert(cube.port.read() == '.')
-
+            cube.port.write("S")
+            print "Wrote S"
+            readValue = cube.port.read()
+            print readValue 
+            for j in range(0,4):
+                for i in range(0,3):
+                    cube.port.write(chr(bs[i][2*j]))
+                    print "wrote", bs[i][2*j]
+                    #time.sleep(0.0001)
+                    cube.port.write(chr(bs[i][2*j+1]))
+                    print "wrote", bs[i][2*j+1]
+                    #time.sleep(0.0001)
     t = threading.Thread(target=sendingThread)
     t.start()
     
+    count =0
+    colorNumber = 0
     while True:
-	#randomness(cube,count)
-        #fillCube(cube,[0,1,0])
-        colourCube(cube)
-	cube.redraw(wf,pv)
+        #randomFillCube(cube,count)
+        colours = [[1,0,0],[0,1,0],[0,0,1]]
+        #wireframeCubeCenter(cube,count%(cube.dimension),colours[(count/4)%3])
+        #colourCube(cube)
+        #start = wireframeExpandContract(cube,start,colours[(count)%3],wf,pv)
+        #fillOneByOne(cube,count%65,colours[colorNumber])
+        #rain(cube,count,2,4)
+        #solidCube(cube,(0,0,0),(1,1,1),[1,0,0])
+        #solidCube(cube,(2,2,2),(3,3,3),[0,1,0])
+        #solidCube(cube,(2,1,1),(3,0,0),[0,1,0])
+        #solidCube(cube,(2,2,2),(3,3,3),[0,1,0])
+        quadrantColourSwap(cube)
+        cube.redraw(wf,pv)
+        time.sleep(0.2)
         count += 1
-        time.sleep(.1)

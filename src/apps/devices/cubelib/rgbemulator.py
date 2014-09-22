@@ -127,7 +127,6 @@ def findIndexArray(array): #Takes a 3-D numpy array containing bool of all the L
 				if(array[i][j][k].any()==1):
 					index = i*16+j*4+ k + 8
 					indices.append((index,array[i][j][k]))
-        print "Indices sent", indices
 	return indices
 
 

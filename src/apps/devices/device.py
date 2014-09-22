@@ -6,7 +6,7 @@ class Device:
     def __init__(self, name, port):
         self.array = []
         try:
-            self.port = serial.Serial(port)
+            self.port = serial.Serial(port,9600)
             self.isConnected = True
             print "Connected to", name
         except Exception as e:
