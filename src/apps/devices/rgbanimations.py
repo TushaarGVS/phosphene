@@ -152,6 +152,7 @@ def randPlane(cube,minimum,maximum):
     return array
 
 def wireframeExpandContract(cube,start,colour,wf,pv):
+    """Draws 2*cube.dimension frames. Need to fix to draw only 1"""
     (x0, y0, z0) = start
 
     for i in xrange(0,cube.dimension):
@@ -206,20 +207,20 @@ def wireframeExpandContract(cube,start,colour,wf,pv):
     return (x0, y0, z0) # return the final coordinate
 
 def rain(cube,counter,minimum,maximum,axis=3):
-    shiftCube(cube,3,1)
+    shiftCube(cube,axis,1)
     setPlane(cube,axis,cube.dimension-1,randPlane(cube,minimum,maximum))
     
-def planeBounce(cube,axis,counter):
+def planeBounce(cube,axis,counter,colour):
     i = counter%20
     if i:
         if i<10:          #to turn off the previous plane
-            setPlane(cube,axis,i-1,0)
+            setPlane(cube,axis,i-1,off)
         elif i>10:
-            setPlane(cube,axis,20-i,0)
+            setPlane(cube,axis,20-i,off)
     if i<10:
-        setPlane(cube,axis,i)
+        setPlane(cube,axis,i,colour)
     elif i>10:
-        setPlane(cube,axis,19-i)
+        setPlane(cube,axis,19-i,colour)
       
 def square(cube,size,translate=(0,0)):
     x0,y0 = translate
@@ -371,6 +372,8 @@ def colourCube(cube):
     r = random.choice([0,1]) 
     g = random.choice([0,1])
     b = random.choice([0,1])
+    if (r,g,b) is (0,0,0):
+        r=1
     fillCube(cube,[r,g,b])
 
 def fillOneByOne(cube,count,colour):

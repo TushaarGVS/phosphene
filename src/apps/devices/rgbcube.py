@@ -16,9 +16,9 @@ import threading
  
 #Sending each layer of red first followed by green and then blue. 1 frame -25bytes.
 
-class Cube(Device):
+class RGBCube(Device):
     def __init__(self, port, dimension=4, emulator=False):
-        Device.__init__(self, "Cube", port)
+        Device.__init__(self, "RGBCube", port)
         self.array = numpy.array([[[\
                 [0]*3]*dimension]*dimension]*dimension, dtype='bool')
         self.dimension = dimension
@@ -64,8 +64,28 @@ class Cube(Device):
             wf.setVisible(emulator.findIndexArray(self.array))
             pv.run()
 
+    def sendData(self):
+        bs = cube.toByteStream()
+        cube.port.write("S")
+        print "Wrote S"
+        readValue = cube.port.read()
+        print readValue 
+        for j in range(0,4):
+            for i in range(0,3):
+                cube.port.write(chr(bs[i][2*j]))
+                print "wrote", bs[i][2*j]
+                #time.sleep(0.0001)
+                cube.port.write(chr(bs[i][2*j+1]))
+                print "wrote", bs[i][2*j+1]
+                #time.sleep(0.0001)
+
+def setupEmulator():
+    pv = emulator.ProjectionViewer(640,480)
+    wf = wireframe.Wireframe()
+    pv.createCube(wf)
+    return (pv,wf) 
 if __name__ == "__main__":
-    cube = Cube("/dev/ttyACM5",4,True)
+    cube = RGBCube("/dev/ttyACM7",4,True)
     pv = emulator.ProjectionViewer(640,480)
     wf = wireframe.Wireframe()
     pv.createCube(wf)
@@ -92,19 +112,25 @@ if __name__ == "__main__":
     
     count =0
     colorNumber = 0
+    fillCube(cube,off)
     while True:
         #randomFillCube(cube,count)
         colours = [[1,0,0],[0,1,0],[0,0,1]]
         #wireframeCubeCenter(cube,count%(cube.dimension),colours[(count/4)%3])
         #colourCube(cube)
         #start = wireframeExpandContract(cube,start,colours[(count)%3],wf,pv)
-        #fillOneByOne(cube,count%65,colours[colorNumber])
-        #rain(cube,count,2,4)
+        #fillOneByOne(cube,count%65,colours[2])
+        #rain(cube,count,2,4,1)
         #solidCube(cube,(0,0,0),(1,1,1),[1,0,0])
         #solidCube(cube,(2,2,2),(3,3,3),[0,1,0])
         #solidCube(cube,(2,1,1),(3,0,0),[0,1,0])
         #solidCube(cube,(2,2,2),(3,3,3),[0,1,0])
-        quadrantColourSwap(cube)
+        #quadrantColourSwap(cube)
         cube.redraw(wf,pv)
         time.sleep(0.2)
+        """
+        if count==64:
+            count=0
+            colorNumber=(colorNumber+1)%3
+        """
         count += 1

@@ -27,6 +27,7 @@ from devices.discoball import DiscoBall
 from devices.waterfall import Waterfall
 from devices.ledwall import LEDWall
 from devices.cube import Cube
+from devices.rgbcube import RGBCube
 
 import phosphene
 from phosphene import audio, signalutil, util
@@ -42,10 +43,11 @@ from threading import Thread
 
 
 # Setup devices with their corresponding device files
+
 devs = [
-        Waterfall("/dev/ttyACM0"),
-        DiscoBall("/dev/ttyACM1"),
-        LEDWall("/dev/ttyACM2")
+        Waterfall("/dev/ttyACM5"),
+        DiscoBall("/dev/ttyACM8"),
+        LEDWall("/dev/ttyACM13")
         ]
 
 pygame.init()
@@ -64,8 +66,7 @@ import serial
 signal = Signal(data, sF)
 
 signal.A = lift((data[:,0] + data[:,1]) / 2, True)
-
-
+signal.beats = lift(lambda s: numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg8, s.longavg8)))
 
 for d in devs:
     d.setupSignal(signal)
@@ -95,19 +96,41 @@ def devices(s):
 CubeState = lambda: 0
 CubeState.count = 0
 
-#cube = Cube("/dev/ttyACM1", emulator=True)
+cube = RGBCube("/dev/ttyACM1",4,emulator=True)
+
 def cubeUpdate(signal):
-    CubeState.count = cubeProcess(cube, signal, CubeState.count)
+    if signal.beats[0] or signal.beats[1] or signal.beats[2] or signal.beats[3]:
+        CubeState.count = cubeProcess(cube, signal, CubeState.count)
+    else:
+        print "Not redrawing"
 
 def graphsProcess(s):
     display.update()
 
-processes = [graphsProcess, devices] #, cube.emulator]
+processes = [graphsProcess, devices, cubeUpdate]
 
 signal.relthresh = 1.66
 
 soundObj = audio.makeSound(sF, data)
     # make a pygame Sound object from the data
+
+def sendingThread():
+    while True:
+        bs = cube.toByteStream()
+        cube.port.write("S")
+        print "Wrote S"
+        readValue = cube.port.read()
+        print readValue 
+        for j in range(0,4):
+            for i in range(0,3):
+                cube.port.write(chr(bs[i][2*j]))
+                print "wrote", bs[i][2*j]
+                #time.sleep(0.0001)
+                cube.port.write(chr(bs[i][2*j+1]))
+                print "wrote", bs[i][2*j+1]
+                #time.sleep(0.0001)
+t = Thread(target=sendingThread)
+t.start()
 
 # run setup on the signal
 signalutil.setup(signal)
