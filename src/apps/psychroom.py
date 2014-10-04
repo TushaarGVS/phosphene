@@ -47,7 +47,7 @@ from threading import Thread
 devs = [
         Waterfall("/dev/ttyACM5"),
         DiscoBall("/dev/ttyACM8"),
-        LEDWall("/dev/ttyACM13")
+        LEDWall("/dev/ttyACM0")
         ]
 
 pygame.init()
@@ -77,7 +77,6 @@ def devices(s):
         if d.isConnected:
             def f():
                 d.redraw(s)
-                d.readAck()
             #t = Thread(target=f)
             #threads.append(t)
             #t.start()
@@ -96,13 +95,11 @@ def devices(s):
 CubeState = lambda: 0
 CubeState.count = 0
 
-cube = RGBCube("/dev/ttyACM1",4,emulator=True)
+cube = RGBCube("/dev/ttyACM3",4)
 
 def cubeUpdate(signal):
     if signal.beats[0] or signal.beats[1] or signal.beats[2] or signal.beats[3]:
         CubeState.count = cubeProcess(cube, signal, CubeState.count)
-    else:
-        print "Not redrawing"
 
 def graphsProcess(s):
     display.update()
