@@ -3,6 +3,8 @@ from phosphene.signal import *
 import scipy, numpy
 from phosphene.graphs import barGraph
 import math
+from phosphene import signalutil
+from phosphene.util import *
 
 class LEDWall(device.Device):
     def __init__(self, port):
@@ -15,14 +17,18 @@ class LEDWall(device.Device):
 
             lights.reverse()
             return lights
-
+        
+        def beats(s):
+            return numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg12, s.longavg12))[:2]
+        signal.woofers = signalutil.blend(beats, 0.7)
         signal.ledwall = lift(LEDWall)
 
     def graphOutput(self, signal):
         return barGraph(self.truncate(signal.ledwall) / 255.0)
 
     def redraw(self, signal):
-        payload = self.toByteStream(self.truncate(signal.ledwall))
+        payload = self.toByteStream(signal.ledwall,signal.woofers)
+        print signal.woofers
         print "writing"
         self.port.write("S") #Start
         ack = self.port.read(size=1) #Ack
@@ -30,17 +36,28 @@ class LEDWall(device.Device):
         self.port.write(payload) #Data - First byte - woofers.
         print "done"
 
-    def toByteStream(self,array):
+    def toByteStream(self,array,wooferArray):
         data = []
         bts = bytearray(6)
         LEVELS = 6
         #Writing 0 to the woofers for now.
-        bts[0] = chr(0)
+        def woofByteStream(array):
+            mod = 0
+            for val in array:
+                n = int(math.ceil(val*4))
+                if val<0.5:
+                    n=0
+                print val,n,bts[0]
+                for i in range(0,n):
+                    bts[0] |= (1<<(mod+i))
+                    print bts[0]
+                mod = 4
+        woofByteStream(wooferArray)
         def group(val):
-            div = 42.67 #255/6
+            div = 85.34 #512/6
             if val == 0:
                 return [0 for i in range(0,LEVELS)]
-            n = int(math.ceil(val/div)) #Number of levels to be lit. (0-6)
+            n = min(6,int(math.ceil(val/div))) #Number of levels to be lit. (0-6)
             return [1 for i in range(0,n)] + [0 for i in range(0,6-n)]
         #Convert into a nested array. 6 values with 6 values inside.
         for value in array:
