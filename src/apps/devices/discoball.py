@@ -8,7 +8,10 @@ class DiscoBall(device.Device):
         device.Device.__init__(self, "DiscoBall", port)
 
     def setupSignal(self, signal):
-        signal.discoball = lift(lambda s: numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg12, s.longavg12)))
+        def beats(s):
+            return numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg6, s.longavg6)) 
+        signal.beats = lift(beats)
+        signal.discoball = blend(beats,0.7)
 
     def graphOutput(self, signal):
         return boopGraph(signal.discoball[:4])

@@ -211,16 +211,16 @@ def rain(cube,counter,minimum,maximum,axis=3):
     setPlane(cube,axis,cube.dimension-1,randPlane(cube,minimum,maximum))
     
 def planeBounce(cube,axis,counter,colour):
-    i = counter%20
+    i = counter%8
     if i:
-        if i<10:          #to turn off the previous plane
+        if i<4:          #to turn off the previous plane
             setPlane(cube,axis,i-1,off)
-        elif i>10:
-            setPlane(cube,axis,20-i,off)
-    if i<10:
+        elif i>4:
+            setPlane(cube,axis,8-i,off)
+    if i<4:
         setPlane(cube,axis,i,colour)
-    elif i>10:
-        setPlane(cube,axis,19-i,colour)
+    elif i>4:
+        setPlane(cube,axis,7-i,colour)
       
 def square(cube,size,translate=(0,0)):
     x0,y0 = translate
@@ -377,11 +377,17 @@ def colourCube(cube):
     fillCube(cube,[r,g,b])
 
 def fillOneByOne(cube,count,colour):
+    count = count%64
     if count == 0:
         fillCube(cube,off)
     x = count/16
     y = (count/4)%4
     z = count%4
+    if count>0:
+        prevx = (count-1)/16
+        prevy = ((count-1)/4)%4
+        prevz = (count-1)%4
+        cube.set_led(prevx,prevy,prevz,off)
     cube.set_led(x,y,z,colour)
 
 def quadrantColourSwap(cube):
@@ -404,3 +410,59 @@ def quadrantColourSwap(cube):
             newz = z+quadrantSize
         solidCube(cube,(x,y,z),(newx,newy,newz),colourDict[shuffledColorKeys[colour]])
         colour+=1
+
+def wireframeExpandContractFrames(cube,start,colour,frame):
+    """Frame 0 decide start"""
+    (x0, y0, z0) = start
+    frame = frame/3
+    frame = frame%7
+    if frame==0:
+        fillCube(cube,[0,0,0])
+    if frame<4:
+        i = frame%4
+        j = cube.dimension - i - 1
+        if(x0 == 0):
+            if(y0 == 0 and z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0+i,z0+i),colour)
+            elif(y0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0+i,z0-i),colour)
+            elif(z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0-i,z0+i),colour)
+            else:
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0-i,z0-i),colour)
+        else:
+            if(y0 == 0 and z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0+i,z0+i),colour)
+            elif(y0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0+i,z0-i),colour)
+            elif(z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0-i,z0+i),colour)
+            else:
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0-i,z0-i),colour)
+    if frame ==4:
+        max_coord = cube.dimension - 1
+        corners = [0,max_coord]
+        x0 = random.choice(corners)
+        y0 = random.choice(corners)
+        z0 = random.choice(corners)
+    if frame>=4:
+        i = cube.dimension - (frame-3)%4 - 1
+        if(x0 == 0):
+            if(y0 == 0 and z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0+i,z0+i),colour)
+            elif(y0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0+i,z0-i),colour)
+            elif(z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0-i,z0+i),colour)
+            else:
+                wireframeCube(cube,(x0,y0,z0),(x0+i,y0-i,z0-i),colour)
+        else:
+            if(y0 == 0 and z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0+i,z0+i),colour)
+            elif(y0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0+i,z0-i),colour)
+            elif(z0 == 0):
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0-i,z0+i),colour)
+            else:
+                wireframeCube(cube,(x0,y0,z0),(x0-i,y0-i,z0-i),colour)                 
+    return (x0, y0, z0) # return the start/end coordinate

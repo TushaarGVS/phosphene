@@ -13,7 +13,8 @@ def cubeProcess(cube, signal, count):
     start = (0, 0, 0)
     point = (0,0)
     #planeBounce(cube,(count/20)%2+1,count%20)
-    #start = wireframeExpandContract(cube,start)
+    colours = [[1,0,0],[0,1,0],[0,0,1]]
+    #start = wireframeExpandContractFrames(cube,start,colours[(count/7)%3],count)
     rain(cube,count,2,4,1)
     #colourCube(cube)
     #quadrantColourSwap(cube)
@@ -24,5 +25,6 @@ def cubeProcess(cube, signal, count):
     #side_waves(cube,count)
     #fireworks(cube,4)
     #technites(cube,count)
+    #planeBounce(cube,(count/8)%3,count%8,colours[(count/8)%3])
     cube.redraw(wf, pv)
     return count + 1

@@ -85,7 +85,7 @@ def setupEmulator():
     pv.createCube(wf)
     return (pv,wf) 
 if __name__ == "__main__":
-    cube = RGBCube("/dev/ttyACM7",4,True)
+    cube = RGBCube("/dev/ttyACM1",4,True)
     pv = emulator.ProjectionViewer(640,480)
     wf = wireframe.Wireframe()
     pv.createCube(wf)
@@ -118,16 +118,14 @@ if __name__ == "__main__":
         colours = [[1,0,0],[0,1,0],[0,0,1]]
         #wireframeCubeCenter(cube,count%(cube.dimension),colours[(count/4)%3])
         #colourCube(cube)
-        #start = wireframeExpandContract(cube,start,colours[(count)%3],wf,pv)
+        #start = wireframeExpandContractFrames(cube,start,colours[(count/7)%3],count)
         #fillOneByOne(cube,count%65,colours[2])
         #rain(cube,count,2,4,1)
-        #solidCube(cube,(0,0,0),(1,1,1),[1,0,0])
-        #solidCube(cube,(2,2,2),(3,3,3),[0,1,0])
-        #solidCube(cube,(2,1,1),(3,0,0),[0,1,0])
-        #solidCube(cube,(2,2,2),(3,3,3),[0,1,0])
         #quadrantColourSwap(cube)
+        planeBounce(cube,(count/8)%3,count%8,colours[(count/8)%3])
+        #fillOneByOne(cube,count,colours[count%3])
         cube.redraw(wf,pv)
-        time.sleep(0.2)
+        time.sleep(1)
         """
         if count==64:
             count=0

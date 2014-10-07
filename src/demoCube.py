@@ -11,6 +11,9 @@ from phosphene.graphs import barGraph, boopGraph, graphsGraphs
 
 from threading import Thread
 
+from apps.devices.rgbcube import RGBcube,setupEmulator
+from apps.devices.rgbanimations import *
+
 if len(sys.argv) < 2:
     print "Usage: %s file.mp3" % sys.argv[0]
     sys.exit(1)
@@ -34,10 +37,12 @@ def beats(s):
     # quick note: s.avg4 is a decaying 4 channel fft
     #             s.longavg4 decays at a slower rate
     # beat detection huristic:
-    #       beat occured if s.avg4 * threshold > s.longavg4ii    threshold = 1.414
+    #       beat occured if s.avg4 * threshold > s.longavg4
+
+    threshold = 1.7
     return util.numpymap(
             lambda (x, y): 1 if x > threshold * y else 0,
-            zip(s.avg12 * threshold, s.longavg12))[:4]
+            zip(s.avg4 * threshold, s.longavg4))
 
 # Lift the beats
 sig.beats = signal.lift(beats)
@@ -58,6 +63,10 @@ def graphsProcess(s):
     # affect the window
     display.update()
 
+def cubeProcess(s):
+    if s.beats[0] or s.beats[1]:
+        rain(RGBcube,Cubecount,2,4)        
+        
 def repl():
     """ call this function to give you a pdb shell
         while the program is running. You will be
@@ -70,10 +79,14 @@ def repl():
     replThread.start()
 #repl()
 
+#Creating cube object
+RGBCube = RGBcube("/dev/ACMTTY0",True)
+Cubecount = 0
+pv,wf = setupEmulator()
+
 # apply utility "lift"s -- this sets up signal.avgN and longavgN variables
 signalutil.setup(sig)
-soundObj = audio.makeSound(sF, data)
-    # make a pygame Sound object from the data
+soundObj = audio.makeSound(sF, data) # make a pygame Sound object from the data
 soundObj.play()                      # start playing it. This is non-blocking
 # perceive signal at 90 fps (or lesser when not possible)
 signal.perceive([graphsProcess], sig, 90)

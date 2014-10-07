@@ -12,9 +12,9 @@ class Waterfall(device.Device):
             lights = [s.avg8[i] * 150 / max(0.5, s.longavg8[i]) \
                             for i in range(0, 8)]
 
-            fans = [2*i for i in lights]
+            #fans = [2*i for i in lights]
             lights.reverse()
-            return lights + fans
+            return lights #+ fans
 
         signal.waterfall = lift(waterfall)
 

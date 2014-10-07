@@ -95,7 +95,7 @@ def devices(s):
 CubeState = lambda: 0
 CubeState.count = 0
 
-cube = RGBCube("/dev/ttyACM3",4)
+cube = RGBCube("/dev/ttyACM2",4,True)
 
 def cubeUpdate(signal):
     if signal.beats[0] or signal.beats[1] or signal.beats[2] or signal.beats[3]:
@@ -132,4 +132,4 @@ t.start()
 # run setup on the signal
 signalutil.setup(signal)
 soundObj.play()                      # start playing it. This is non-blocking
-perceive(processes, signal, 90)      # perceive your signal.
+perceive(processes, signal, 36)      # perceive your signal.

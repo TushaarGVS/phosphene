@@ -19,7 +19,7 @@ class LEDWall(device.Device):
             return lights
         
         def beats(s):
-            return numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg12, s.longavg12))[:2]
+            return numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg6, s.longavg6))
         signal.woofers = signalutil.blend(beats, 0.7)
         signal.ledwall = lift(LEDWall)
 
@@ -40,10 +40,9 @@ class LEDWall(device.Device):
         data = []
         bts = bytearray(6)
         LEVELS = 6
+        beatVal  = wooferArray[1]
         #Writing 0 to the woofers for now.
-        def woofByteStream(array):
-            mod = 0
-            for val in array:
+        def woofByteStream(val,mod):
                 n = int(math.ceil(val*4))
                 if val<0.5:
                     n=0
@@ -51,11 +50,11 @@ class LEDWall(device.Device):
                 for i in range(0,n):
                     bts[0] |= (1<<(mod+i))
                     print bts[0]
-                mod = 4
-        woofByteStream(wooferArray)
+        woofByteStream(beatVal,0)
+        woofByteStream(beatVal,4)
         def group(val):
             div = 85.34 #512/6
-            if val == 0:
+            if val < 5:
                 return [0 for i in range(0,LEVELS)]
             n = min(6,int(math.ceil(val/div))) #Number of levels to be lit. (0-6)
             return [1 for i in range(0,n)] + [0 for i in range(0,6-n)]
