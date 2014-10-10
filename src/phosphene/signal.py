@@ -121,14 +121,13 @@ class Signal:
         self.fps = fps
         self.frames = frames
 
-def perceive(processes, signal, max_fps):
+def perceive(processes, signal, max_fps, realTime = False):
     """Let processes perceive the signal
 
     simulates real-time reading of signals and runs all the functions
     in processes (these functions take the current signal value as
     argument)
     """
-
     start_time = signal.time()
     call_spacing = 1.0 / max_fps
     sample_count = len(signal.Y)
@@ -142,9 +141,14 @@ def perceive(processes, signal, max_fps):
 
         # what should be the current sample?
         x = int((tic - start_time) * signal.sample_rate)
-        if x >= sample_count:
+        sample_count = len(signal.Y)
+        if not realTime and x >= sample_count:
             break
-
+        while realTime and sample_count-x<1312:
+            print "waiting for samples of ", sample_count-x
+            time.sleep(0.032)
+            sample_count = len(signal.Y)
+        print "over"
         frames += 1
 
         # approximate current fps
