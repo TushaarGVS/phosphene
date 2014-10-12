@@ -148,7 +148,7 @@ def perceive(processes, signal, max_fps, realTime = False):
             print "waiting for samples of ", sample_count-x
             time.sleep(0.032)
             sample_count = len(signal.Y)
-        print "over"
+            continue
         frames += 1
 
         # approximate current fps
@@ -170,4 +170,36 @@ def perceive(processes, signal, max_fps, realTime = False):
         #        i.e. next frame takes approximately takes the
         #        same time as few frames immediately before it
         if wait > 0:
+            time.sleep(wait)
+
+def realTimeProcess(processes,signal,max_fps):
+    jumps = signal.sample_rate / max_fps
+    jumpsPer1024 = 1024.0 / jumps
+    call_spacing = 0.02333/jumpsPer1024
+    prev_x = -1
+    x = 0
+    frames = 0
+    fps = max_fps
+    
+    while True:
+        tic = time.time()
+        sample_count = len(signal.Y)
+        if sample_count-x<1312:
+            time.sleep(0.001)
+            #print "waiting",sample_count-x
+            continue
+        frames+=1
+        fps = fps*0.5 + 0.5 *signal.sample_rate / float(x-prev_x)
+        #print sample_count, x, fps, sample_count-x
+        #print "time" , sample_count/44100
+        signal.set_state(x,fps,frames)
+        for p in processes:
+            p(signal)
+
+        prev_x = x
+        x += jumps
+
+        toc = time.time()
+        wait = call_spacing = (toc-tic)
+        if wait>0:
             time.sleep(wait)

@@ -69,17 +69,22 @@ def repl():
 def initRecording(sig):
     p = pyaudio.PyAudio()
     def callback(in_data, frame_count, time_info, status):
+        nextTime = time.time()
+        try:
+            print nextTime - startTime
+        except:
+            print nextTime
+        startTime = nextTime
         newSamples = np.fromstring(in_data,dtype=np.int16)
         sig.Y = np.append(sig.Y,zip(newSamples[::2],newSamples[1::2]),0)
-        print "called", len(sig.Y)
         sig.A = signal.lift((sig.Y[:,0] + sig.Y[:,1]) / 2, True)
-        print "lift done"
+        startTime = nextTime
         return (in_data,pyaudio.paContinue)
+    startTime = time.time()
     stream = p.open(channels=2,format=pyaudio.paInt16,frames_per_buffer=1024,rate=44100,input=True,stream_callback=callback)
     return stream
 # apply utility "lift"s -- this sets up signal.avgN and longavgN variables
 signalutil.setup(sig)
 # perceive signal at 90 fps (or lesser when not possible)
 stream = initRecording(sig)
-time.sleep(0.32)
-signal.perceive([graphsProcess], sig, 90, True)
+signal.realTimeProcess([graphsProcess], sig, 90)
