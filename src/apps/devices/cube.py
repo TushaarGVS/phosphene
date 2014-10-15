@@ -9,7 +9,6 @@ import time
 import threading
 
 # A class for the cube
-#TODO:Fix up animations to add the new pv variable.
 
 class Cube(Device):
     def __init__(self, port, dimension=10, emulator=False):
@@ -61,7 +60,7 @@ class Cube(Device):
             pv.run()
 
 if __name__ == "__main__":
-    cube = Cube("/dev/ttyACM0",10,True)
+    cube = Cube("/dev/ttyACM2",10,True)
     pv = emulator.ProjectionViewer(640,480)
     wf = wireframe.Wireframe()
     pv.createCube(wf)
@@ -69,32 +68,40 @@ if __name__ == "__main__":
     start = (0, 0, 0)
     point = (0,0)
     fillCube(cube,0)
-    #cube.redraw()
-    #time.sleep(100)
     def sendingThread():
         while True:
-            cube.port.write("S")
             bs = cube.toByteStream()
+            #time.sleep(0.01)
+            cube.port.write("L")
+            print "wrote L"
+            ack = cube.port.read(size=1)
+            print "Ack recieved", ack
             for i in range(0, 130):
-                time.sleep(0.01)
+                if i%13==0:
+                    cube.port.write("S")
+                    print "Wrote S"
+                    ack = cube.port.read(size=1)
+                    print "Ack recieved", ack
+                    #time.sleep(0.01)
                 cube.port.write(chr(bs[i]))
                 print "wrote", bs[i]
-            assert(cube.port.read() == '.')
 
     t = threading.Thread(target=sendingThread)
     t.start()
     while True:
         #wireframeCube(cube,(1,1,1),(9,9,9))
-        #fillCube(cube, 1)
+        if count<10:
+            fillCube(cube, 0)
+            cube.redraw(wf,pv)
+            count+=1
+            continue
         #planeBounce(cube,(count/20)%2+1,count%20)
         #planeBounce(cube,1,count)
         #start = wireframeExpandContract(cube,start)
         #rain(cube,count,5,10)
 	#drawFunc(cube,lambda x,y:x**2+y**2,count)
-	time.sleep(.1)
         #point = voxel(cube,count,point)
 	#sine_wave(cube,count)
-	pyramids(cube,count)
 	#side_waves(cube,count)
 	#fireworks(cube,4)
         #technites(cube, count)
@@ -104,7 +111,10 @@ if __name__ == "__main__":
         #moveFaces(cube)
         #cube.set_led(0,0,0)
         #cube.set_led(0,0,1)
+        dotTest(cube,count-10)
+        #setPlane(cube,1,(count-1)%cube.dimension,0)
+        #setPlane(cube,1,count%cube.dimension)
         cube.redraw(wf,pv)
         count += 1
-        time.sleep(0.01)
-
+        #inp = raw_input("Press Enter for next frame")
+        time.sleep(0.5)

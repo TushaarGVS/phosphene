@@ -864,63 +864,63 @@ def Z():
     return plane
 
 def stringPrint(cube,string,counter=0,axis = 3):
-	if counter%10 ==0:
-		fillCube(cube,0)
-		i = string[(counter/10)%len(string)]
-		if i == 'A':
-			setPlane(cube,axis,9,A())
-    		elif i == 'B':
-    			setPlane(cube,axis,9,B())
-		elif i == 'C':
-			setPlane(cube,axis,9,C())
-		elif i == 'D':
-			setPlane(cube,axis,9,D())
-		elif i == 'E':
-			setPlane(cube,axis,9,E())
-		elif i == 'F':
-			setPlane(cube,axis,9,F())
-		elif i == 'G':
-			setPlane(cube,axis,9,G())
-		elif i == 'H':
-			setPlane(cube,axis,9,H())
-		elif i == 'I':
-			setPlane(cube,axis,9,I())
-		elif i == 'J':
-			setPlane(cube,axis,9,J())
-		elif i == 'K':
-			setPlane(cube,axis,9,K())
-		elif i == 'L':
-			setPlane(cube,axis,9,L())
-		elif i == 'M':
-			setPlane(cube,axis,9,M())
-		elif i == 'N':
-			setPlane(cube,axis,9,N())
-		elif i == 'O':
-			setPlane(cube,axis,9,O())
-		elif i == 'P':
-			setPlane(cube,axis,9,P())
-		elif i == 'Q':
-			setPlane(cube,axis,9,Q())
-		elif i == 'R':
-			setPlane(cube,axis,9,R())
-		elif i == 'S':
-			setPlane(cube,axis,9,S())
-		elif i == 'T':
-			setPlane(cube,axis,9,T())
-		elif i == 'U':
-			setPlane(cube,axis,9,U())
-		elif i == 'V':
-			setPlane(cube,axis,9,V())
-		elif i == 'W':
-			setPlane(cube,axis,9,W())
-		elif i == 'X':
-			setPlane(cube,axis,9,X())
-		elif i == 'Y':
-			setPlane(cube,axis,9,Y())
-		elif i == 'Z':
-			setPlane(cube,axis,9,Z())
-	else:
-		shiftCube(cube,axis,1)
+    if counter%10 ==0:
+        fillCube(cube,0)
+        i = string[(counter/10)%len(string)]
+        if i == 'A':
+            setPlane(cube,axis,9,A())
+        elif i == 'B':
+            setPlane(cube,axis,9,B())
+        elif i == 'C':
+            setPlane(cube,axis,9,C())
+        elif i == 'D':
+            setPlane(cube,axis,9,D())
+        elif i == 'E':
+            setPlane(cube,axis,9,E())
+        elif i == 'F':
+            setPlane(cube,axis,9,F())
+        elif i == 'G':
+            setPlane(cube,axis,9,G())
+        elif i == 'H':
+            setPlane(cube,axis,9,H())
+        elif i == 'I':
+            setPlane(cube,axis,9,I())
+        elif i == 'J':
+            setPlane(cube,axis,9,J())
+        elif i == 'K':
+            setPlane(cube,axis,9,K())
+        elif i == 'L':
+            setPlane(cube,axis,9,L())
+        elif i == 'M':
+            setPlane(cube,axis,9,M())
+        elif i == 'N':
+            setPlane(cube,axis,9,N())
+        elif i == 'O':
+            setPlane(cube,axis,9,O())
+        elif i == 'P':
+            setPlane(cube,axis,9,P())
+        elif i == 'Q':
+            setPlane(cube,axis,9,Q())
+        elif i == 'R':
+            setPlane(cube,axis,9,R())
+        elif i == 'S':
+            setPlane(cube,axis,9,S())
+        elif i == 'T':
+            setPlane(cube,axis,9,T())
+        elif i == 'U':
+            setPlane(cube,axis,9,U())
+        elif i == 'V':
+            setPlane(cube,axis,9,V())
+        elif i == 'W':
+            setPlane(cube,axis,9,W())
+        elif i == 'X':
+            setPlane(cube,axis,9,X())
+        elif i == 'Y':
+            setPlane(cube,axis,9,Y())
+        elif i == 'Z':
+            setPlane(cube,axis,9,Z())
+    else:
+        shiftCube(cube,axis,1)
 
 def stringfly(cube,axis):
     shiftCube(cube,axis,1)
@@ -1004,3 +1004,19 @@ def drawFunc(cube,f,count):
 		  k = int(f(i,j))%cube.dimension
 		  cube.set_led(i,j,k,1)
 	"""
+
+def dotTest(cube,count):
+    count=count%(cube.dimension**3)
+    if count == 0:
+        fillCube(cube,0)
+    x=count%cube.dimension
+    y=(count/cube.dimension)%cube.dimension
+    z=(count/(cube.dimension**2))%cube.dimension
+    cube.set_led(x,y,z)
+
+def undotTest(cube,count):
+    count=count%(cube.dimension**3)
+    x=count%cube.dimension
+    y=(count/cube.dimension)%cube.dimension
+    z=(count/(cube.dimension**2))%cube.dimension
+    cube.set_led(x,y,z,0)

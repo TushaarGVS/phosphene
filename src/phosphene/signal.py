@@ -121,6 +121,11 @@ class Signal:
         self.fps = fps
         self.frames = frames
 
+    def clear_data(self, slc):
+        self.Y = numpy.delete(self.Y,slc,0)
+        self.cache = {}
+        self.A = lift(self.Y[:,0],True)
+
 def perceive(processes, signal, max_fps, realTime = False):
     """Let processes perceive the signal
 
@@ -184,6 +189,11 @@ def realTimeProcess(processes,signal,max_fps):
     while True:
         tic = time.time()
         sample_count = len(signal.Y)
+        if sample_count>=44100*30:
+            print "Called"
+            signal.clear_data(numpy.s_[:x-1400:])
+            x = 1400
+            continue
         if sample_count-x<1312:
             time.sleep(0.001)
             #print "waiting",sample_count-x
