@@ -81,7 +81,14 @@ def initRecording(sig):
         startTime = nextTime
         return (in_data,pyaudio.paContinue)
     startTime = time.time()
-    stream = p.open(channels=2,format=pyaudio.paInt16,frames_per_buffer=1024,rate=44100,input=True,stream_callback=callback)
+    stream = p.open(channels=2,
+                    format=pyaudio.paInt16,
+                    frames_per_buffer=1024,
+                    rate=44100,
+                    input=True,
+                    input_device_index=0,
+                    stream_callback=callback,
+                    )
     return stream
 # apply utility "lift"s -- this sets up signal.avgN and longavgN variables
 signalutil.setup(sig)
