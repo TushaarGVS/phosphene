@@ -30,7 +30,7 @@ class Cube(Device):
         pass
 
     def toByteStream(self):
-        # 104 bits per layer, first 4 bits waste.
+        # 104 bits per layer, last 4 bits waste.
  
         bytesPerLayer = int(math.ceil(self.dimension**2 / 8.0))
         print bytesPerLayer
@@ -42,7 +42,7 @@ class Cube(Device):
         mod = 0
 
         for layer in self.array:
-            mod = discardBits
+            mod = 0
             for row in layer:
                 for bit in row:
                     if bit: bts[pos] |= 1 << mod
@@ -53,6 +53,13 @@ class Cube(Device):
                     if mod == 8:
                         mod = 0
                         pos += 1
+                        
+            for i in range(0,discardBits): #Putting slack bits at the end
+                bts[pos] &= ~(1<<mod)
+                mod+=1
+                if mod==8:
+                    mod=0
+                    pos+=1
         return bts
 
     def redraw(self, wf=None, pv=None):
@@ -61,7 +68,7 @@ class Cube(Device):
             pv.run()
 
 if __name__ == "__main__":
-    cube = Cube("/dev/ttyACM0",10,True)
+    cube = Cube("/dev/ttyACM1",10,True)
     pv = emulator.ProjectionViewer(640,480)
     wf = wireframe.Wireframe()
     pv.createCube(wf)
@@ -75,18 +82,31 @@ if __name__ == "__main__":
         while True:
             cube.port.write("S")
             bs = cube.toByteStream()
+            #time.sleep(0.01)
+            cube.port.write("L")
+            print "wrote L"
+            ack = cube.port.read(size=1)
+            print "Ack recieved", ack
             for i in range(0, 130):
-                time.sleep(0.01)
+                if i%13==0:
+                    cube.port.write("S")
+                    print "Wrote S"
+                    ack = cube.port.read(size=1)
+                    print "Ack recieved", ack
+                    #time.sleep(0.01)
                 cube.port.write(chr(bs[i]))
                 print "wrote", bs[i]
-            assert(cube.port.read() == '.')
 
     t = threading.Thread(target=sendingThread)
     t.start()
     while True:
         #wireframeCube(cube,(1,1,1),(9,9,9))
-        #fillCube(cube, 1)
-        planeBounce(cube,(count/20)%2+1,count%20)
+        if count==0:
+            fillCube(cube, 0)
+            cube.redraw(wf,pv)
+            count+=1
+            continue
+        #planeBounce(cube,(count/20)%2+1,count%20)
         #planeBounce(cube,1,count)
         #start = wireframeExpandContract(cube,start)
         #rain(cube,count,5,10)
@@ -94,7 +114,7 @@ if __name__ == "__main__":
 	time.sleep(.1)
         #point = voxel(cube,count,point)
 	#sine_wave(cube,count)
-	#pyramids(cube,count)
+	pyramids(cube,count)
 	#side_waves(cube,count)
 	#fireworks(cube,4)
         #technites(cube, count)
@@ -104,7 +124,14 @@ if __name__ == "__main__":
         #moveFaces(cube)
         #cube.set_led(0,0,0)
         #cube.set_led(0,0,1)
+        #dotTest(cube,count-10)
+        #setPlane(cube,1,(count-1)%cube.dimension,0)
+        #setPlane(cube,1,count%cube.dimension)
+        #cube.set_led(0,0,3)
+        fillCube(cube,1)
         cube.redraw(wf,pv)
+        bs= cube.toByteStream()
+        for i in range(0,130):
+            print  i,bs[i]
         count += 1
-        time.sleep(0.01)
-
+        #inp = raw_input("Press Enter for next frame")

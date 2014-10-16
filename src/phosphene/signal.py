@@ -121,14 +121,18 @@ class Signal:
         self.fps = fps
         self.frames = frames
 
-def perceive(processes, signal, max_fps):
+    def clear_data(self, slc):
+        self.Y = numpy.delete(self.Y,slc,0)
+        self.cache = {}
+        self.A = lift(self.Y[:,0],True)
+
+def perceive(processes, signal, max_fps, realTime = False):
     """Let processes perceive the signal
 
     simulates real-time reading of signals and runs all the functions
     in processes (these functions take the current signal value as
     argument)
     """
-
     start_time = signal.time()
     call_spacing = 1.0 / max_fps
     sample_count = len(signal.Y)
@@ -142,9 +146,14 @@ def perceive(processes, signal, max_fps):
 
         # what should be the current sample?
         x = int((tic - start_time) * signal.sample_rate)
-        if x >= sample_count:
+        sample_count = len(signal.Y)
+        if not realTime and x >= sample_count:
             break
-
+        while realTime and sample_count-x<1312:
+            print "waiting for samples of ", sample_count-x
+            time.sleep(0.032)
+            sample_count = len(signal.Y)
+            continue
         frames += 1
 
         # approximate current fps
@@ -166,4 +175,41 @@ def perceive(processes, signal, max_fps):
         #        i.e. next frame takes approximately takes the
         #        same time as few frames immediately before it
         if wait > 0:
+            time.sleep(wait)
+
+def realTimeProcess(processes,signal,max_fps):
+    jumps = signal.sample_rate / max_fps
+    jumpsPer1024 = 1024.0 / jumps
+    call_spacing = 0.02333/jumpsPer1024
+    prev_x = -1
+    x = 0
+    frames = 0
+    fps = max_fps
+    
+    while True:
+        tic = time.time()
+        sample_count = len(signal.Y)
+        if sample_count>=44100*30:
+            print "Called"
+            signal.clear_data(numpy.s_[:x-1400:])
+            x = 1400
+            continue
+        if sample_count-x<1312:
+            time.sleep(0.001)
+            #print "waiting",sample_count-x
+            continue
+        frames+=1
+        fps = fps*0.5 + 0.5 *signal.sample_rate / float(x-prev_x)
+        #print sample_count, x, fps, sample_count-x
+        #print "time" , sample_count/44100
+        signal.set_state(x,fps,frames)
+        for p in processes:
+            p(signal)
+
+        prev_x = x
+        x += jumps
+
+        toc = time.time()
+        wait = call_spacing = (toc-tic)
+        if wait>0:
             time.sleep(wait)
