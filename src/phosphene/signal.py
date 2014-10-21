@@ -8,7 +8,8 @@ __all__ = [
     'Signal',
     'lift',
     'foldp',
-    'perceive'
+    'perceive',
+    'realTimeProcess',
 ]
 
 

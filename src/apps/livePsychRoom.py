@@ -1,14 +1,15 @@
 #
-# This script plays an mp3 file and communicates via serial.Serial
+# This script takes realtime input using pyaudio and communicates via serial.Serial
 # with devices in the Technites psychedelic room to visualize the
 # music on them.
 #
-# It talks to 4 devices
+## It talks to 4 devices
 #   WaterFall -- tubes with LEDs and flying stuff fanned to music
 #   DiscoBall -- 8 60 watt bulbs wrapped in colored paper
-#   LEDWall   -- a 4 channel strip of LED
-#                this time it was the LED roof instead :p
-#   LEDCube   -- a 10x10x10 LED cube - work on this is still on
+#   LEDWall   -- a 6 channel 6-strip of LED's with 2 woofers and 8 bulbs.
+#   The woofers had 4 rings of LEDs arranged one inside another.
+#   Bulbs were just 8 bulbs arranged in a circle.
+#   LEDCube   -- a 4x4x4 RGB LED cube
 #
 # the script also has a sloppy pygame visualization of the fft and
 # beats data

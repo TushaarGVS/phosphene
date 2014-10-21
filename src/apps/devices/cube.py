@@ -33,16 +33,13 @@ class Cube(Device):
         # 104 bits per layer, last 4 bits waste.
  
         bytesPerLayer = int(math.ceil(self.dimension**2 / 8.0))
-        print bytesPerLayer
         discardBits = bytesPerLayer * 8 - self.dimension**2
-        print discardBits
         bts = bytearray(bytesPerLayer*self.dimension)
 
         pos = 0
-        mod = 0
+        mod = 4
 
         for layer in self.array:
-            mod = 0
             for row in layer:
                 for bit in row:
                     if bit: bts[pos] |= 1 << mod
@@ -54,12 +51,6 @@ class Cube(Device):
                         mod = 0
                         pos += 1
                         
-            for i in range(0,discardBits): #Putting slack bits at the end
-                bts[pos] &= ~(1<<mod)
-                mod+=1
-                if mod==8:
-                    mod=0
-                    pos+=1
         return bts
 
     def redraw(self, wf=None, pv=None):
@@ -111,10 +102,9 @@ if __name__ == "__main__":
         #start = wireframeExpandContract(cube,start)
         #rain(cube,count,5,10)
 	#drawFunc(cube,lambda x,y:x**2+y**2,count)
-	time.sleep(.1)
         #point = voxel(cube,count,point)
 	#sine_wave(cube,count)
-	pyramids(cube,count)
+	#pyramids(cube,count)
 	#side_waves(cube,count)
 	#fireworks(cube,4)
         #technites(cube, count)
@@ -128,10 +118,7 @@ if __name__ == "__main__":
         #setPlane(cube,1,(count-1)%cube.dimension,0)
         #setPlane(cube,1,count%cube.dimension)
         #cube.set_led(0,0,3)
-        fillCube(cube,1)
+        fillCube(cube,count%2)
         cube.redraw(wf,pv)
-        bs= cube.toByteStream()
-        for i in range(0,130):
-            print  i,bs[i]
         count += 1
-        #inp = raw_input("Press Enter for next frame")
+	time.sleep(.1)
