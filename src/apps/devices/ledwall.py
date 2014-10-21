@@ -5,6 +5,10 @@ from phosphene.graphs import barGraph
 import math
 from phosphene import signalutil
 from phosphene.util import *
+""" The LEDWall is a device which composed of a 6*6 square of led strips.
+    Attached to it were 2 "woofers" which had 4 rings of leds 
+    and a set of 8 bulbs. The LEDWall was used as an equaliser while the
+    woofers and the bulbs responded to beats. """
 
 class LEDWall(device.Device):
     def __init__(self, port):
@@ -20,21 +24,17 @@ class LEDWall(device.Device):
         
         def beats(s):
             return numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg6, s.longavg6))
-        signal.woofers = signalutil.blend(beats, 0.7)
-        signal.ledwall = lift(LEDWall)
+        signal.woofers = signalutil.blend(beats, 0.7) #Beats
+        signal.ledwall = lift(LEDWall) 
 
     def graphOutput(self, signal):
         return barGraph(self.truncate(signal.ledwall) / 255.0)
 
     def redraw(self, signal):
         payload = self.toByteStream(signal.ledwall,signal.woofers)
-        print signal.woofers
-        print "writing"
         self.port.write("S") #Start
         ack = self.port.read(size=1) #Ack
-        print ack
         self.port.write(payload) #Data - First byte - woofers.
-        print "done"
 
     def toByteStream(self,array,wooferArray):
         data = []
@@ -50,8 +50,9 @@ class LEDWall(device.Device):
                 for i in range(0,n):
                     bts[0] |= (1<<(mod+i))
                     print bts[0]
-        woofByteStream(beatVal,0)
+        woofByteStream(beatVal,0) #woofer data
         woofByteStream(beatVal,4)
+        woofByteStream(beatVal,4) #bulbs data
         def group(val):
             div = 85.34 #512/6
             if val < 5:
@@ -62,11 +63,9 @@ class LEDWall(device.Device):
         for value in array:
             data.append(group(value))
         #Now convert into Bytes.
-        #First 4 bits waste.
+        #Last 4 bits is for bulbs and is set earlier.
         pos = 1
         mod = 4
-        print "ARRAY", array
-        print "DATA", data
         for channel in data:
             for strip in channel:
                 if strip: bts[pos] |= (1 << (7-mod))
@@ -75,6 +74,4 @@ class LEDWall(device.Device):
                 if mod == 8:
                     mod = 0
                     pos+=1
-        for i in bts:
-            print i
         return bts
