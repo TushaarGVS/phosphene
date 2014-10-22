@@ -76,7 +76,7 @@ perceive(processes, mySingal, fps) # simulate perception of music by processes
 
 `signal` and `signalutil` modules contain some functions that return `lift` values. Such as `foldp` (fold over past) and `blend` (cause a value vary smoothly).
 
-The `realTimeProcess' function, found in the `signal` module can be used to perform processing on realtime signals. It works by clearing out the input array every 30 seconds and keeping the past 1400 samples from the current sample being percieved. It can be used in the same way as `perceive` function. 
+The `realTimeProcess` function, found in the `signal` module can be used to perform processing on realtime signals. It works by clearing out the input array every 30 seconds and keeping the past 1400 samples from the current sample being percieved. It can be used in the same way as `perceive` function. 
 
 See demo.py for an example of beat detection done using this class and some utility functions from phosphene.
 liveDemo.py is an example of how to set up the realtime input using pyaudio. 
