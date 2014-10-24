@@ -4,7 +4,7 @@ A simple GUI consisting of a file chooser(to select the program and song) and a 
 
 To compile gui.cpp, type
 
-``g++ gui.cpp -o gui `pkg-config gtkmm-3.0 --libs --cflags```
+``g++ gui.cpp -o gui `pkg-config gtkmm-3.0 --libs --cflags` ``
 
 on terminal in the working directory
 
