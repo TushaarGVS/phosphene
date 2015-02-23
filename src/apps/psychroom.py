@@ -45,8 +45,8 @@ from threading import Thread
 # Setup devices with their corresponding device files
 
 devs = [
-        Waterfall("/dev/ttyACM5"),
-        DiscoBall("/dev/ttyACM8"),
+        #Waterfall("/dev/ttyACM5"),
+        #DiscoBall("/dev/ttyACM8"),
         LEDWall("/dev/ttyACM0")
         ]
 
@@ -95,7 +95,7 @@ def devices(s):
 CubeState = lambda: 0
 CubeState.count = 0
 
-cube = RGBCube("/dev/ttyACM2",4,True)
+cube = RGBCube("/dev/ttyACM2",4)
 
 def cubeUpdate(signal):
     if signal.beats[0] or signal.beats[1] or signal.beats[2] or signal.beats[3]:

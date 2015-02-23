@@ -70,11 +70,6 @@ def initRecording(sig):
     p = pyaudio.PyAudio()
     def callback(in_data, frame_count, time_info, status):
         nextTime = time.time()
-        try:
-            print nextTime - startTime
-        except:
-            print nextTime
-        startTime = nextTime
         newSamples = np.fromstring(in_data,dtype=np.int16)
         sig.Y = np.append(sig.Y,zip(newSamples[::2],newSamples[1::2]),0)
         sig.A = signal.lift((sig.Y[:,0] + sig.Y[:,1]) / 2, True)
