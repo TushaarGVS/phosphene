@@ -192,7 +192,7 @@ def realTimeProcess(processes,signal,max_fps):
         sample_count = len(signal.Y)
         if sample_count>=44100*30:
             print "Called"
-            signal.clear_data(numpy.s_[:x-1400:])
+            signal.clear_data(numpy.s_[:-1400:])
             x = 1400
             continue
         if sample_count-x<1312:
