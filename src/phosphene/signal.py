@@ -186,7 +186,6 @@ def realTimeProcess(processes,signal,max_fps):
     x = 0
     frames = 0
     fps = max_fps
-    
     while True:
         tic = time.time()
         sample_count = len(signal.Y)
@@ -211,6 +210,6 @@ def realTimeProcess(processes,signal,max_fps):
         x += jumps
 
         toc = time.time()
-        wait = call_spacing = (toc-tic)
+        wait = call_spacing - (toc-tic)
         if wait>0:
             time.sleep(wait)
