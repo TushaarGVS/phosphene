@@ -7,8 +7,8 @@ from phosphene import signalutil
 from phosphene.util import *
 """ The LEDWall is a device which composed of a 6*6 square of led strips.
     Attached to it were 2 "woofers" which had 4 rings of leds 
-    and a set of 8 bulbs. The LEDWall was used as an equaliser while the
-    woofers and the bulbs responded to beats. """
+    and 4 "pillars" which had 6 rings of leds. The LEDWall was used as an equaliser while the
+    woofers and the pillars responded to beats. """
 
 class LEDWall(device.Device):
     def __init__(self, port):
@@ -23,7 +23,7 @@ class LEDWall(device.Device):
             return lights
         
         def beats(s):
-            return numpymap(lambda (a, b): 1 if a > b * 1.414 else 0, zip(s.avg6, s.longavg6))
+            return numpymap(lambda (a, b): 1 if a > b * 1.3 else 0, zip(s.avg6, s.longavg6))
         signal.woofers = signalutil.blend(beats, 0.7) #Beats
         signal.ledwall = lift(LEDWall) 
 
@@ -42,17 +42,25 @@ class LEDWall(device.Device):
         LEVELS = 6
         beatVal  = wooferArray[1]
         #Writing 0 to the woofers for now.
-        def woofByteStream(val,mod):
+        def woofByteStream(val,pos,mod):
                 n = int(math.ceil(val*4))
                 if val<0.5:
                     n=0
-                print val,n,bts[0]
+                print val,n,bts[pos]
                 for i in range(0,n):
-                    bts[0] |= (1<<(mod+i))
-                    print bts[0]
-        woofByteStream(beatVal,0) #woofer data
-        woofByteStream(beatVal,4)
-        woofByteStream(beatVal,4) #bulbs data
+                    bts[pos] |= (1<<(mod+i))
+                    print bts[pos]
+        def pillarByteStream(val,pos, mod):
+            n = int(math.ceil(val*6))
+            if val<0.5:
+                n=0
+            print val,n,bts[pos]
+            for i in range(0,n):
+                bts[pos] |= (1<<(mod+i))
+                print bts[pos]
+        pillarByteStream(beatVal,0, 0) #pillar data - 1st 2 bits slack, next 6 pillar data.        
+        woofByteStream(beatVal,1, 4) #Woofers first 4 bits of 2nd byte
+        
         def group(val):
             div = 85.34 #512/6
             if val < 5:
@@ -63,13 +71,13 @@ class LEDWall(device.Device):
         for value in array:
             data.append(group(value))
         #Now convert into Bytes.
-        #Last 4 bits is for bulbs and is set earlier.
+        #First 4 bits is for pillar and is set earlier.
         pos = 1
         mod = 4
         for channel in data:
             for strip in channel:
-                if strip: bts[pos] |= (1 << (7-mod))
-                else: bts[pos] &= (~(1<<(7-mod)))
+                if strip: bts[pos] |= (1 << (7 - mod))
+                else: bts[pos] &= (~(1<<(7 - mod)))
                 mod += 1
                 if mod == 8:
                     mod = 0

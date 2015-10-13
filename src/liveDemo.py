@@ -81,7 +81,7 @@ def initRecording(sig):
                     frames_per_buffer=1024,
                     rate=44100,
                     input=True,
-                    input_device_index=0,
+                    input_device_index=3, #change input_device_index depending on the sound card
                     stream_callback=callback,
                     )
     return stream
